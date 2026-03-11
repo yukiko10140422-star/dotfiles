@@ -2,7 +2,7 @@
 $repoUrl = "https://github.com/yukiko10140422-star/claude-skills.git"
 $targetDir = "$env:USERPROFILE\claude-skills"
 
-if (Test-Path $targetDir) {
+if (Test-Path "$targetDir\.git") {
     Write-Host "claude-skills: pulling latest..."
     git -C $targetDir pull --ff-only
 } else {
