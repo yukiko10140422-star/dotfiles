@@ -2,12 +2,7 @@
   "enabledPlugins": {
     "company@cc-company": true,
     "example-skills@anthropic-agent-skills": true,
-    "mcp-manager@claude-skills": true,
-    "serena@claude-plugins-official": true,
-    "github@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
-    "supabase@claude-plugins-official": true
+    "mcp-manager@claude-skills": true
   },
   "extraKnownMarketplaces": {
     "cc-company": {
@@ -30,5 +25,6 @@
     }
   },
   "autoUpdatesChannel": "latest",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "voiceEnabled": true
 }
