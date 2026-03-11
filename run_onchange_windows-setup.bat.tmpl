@@ -1,0 +1,73 @@
+@echo off
+REM chezmoi run_onchange: 依存ツールを自動インストール
+REM このスクリプトは chezmoi apply 時に内容が変わった場合のみ実行される
+REM hash: {{ include "dot_claude/settings.json" | sha256sum }}
+
+echo ========================================
+echo  Claude Code 環境セットアップ
+echo ========================================
+
+REM --- GitHub CLI ---
+where gh >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INSTALL] GitHub CLI をインストール中...
+    winget install GitHub.cli --accept-source-agreements --accept-package-agreements
+) else (
+    echo [OK] GitHub CLI は既にインストール済み
+)
+
+REM --- uv (uvx / serena 用) ---
+where uvx >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INSTALL] uv をインストール中...
+    winget install astral-sh.uv --accept-source-agreements --accept-package-agreements
+) else (
+    echo [OK] uv は既にインストール済み
+)
+
+REM --- Node.js (context7, playwright 用) ---
+where node >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INSTALL] Node.js をインストール中...
+    winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements
+) else (
+    echo [OK] Node.js は既にインストール済み
+)
+
+REM --- GitHub CLI 認証チェック ---
+where gh >nul 2>&1
+if %errorlevel% equ 0 (
+    gh auth status >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo.
+        echo [AUTH] GitHub CLI の認証が必要です
+        echo       以下のコマンドを PowerShell で実行してください:
+        echo         gh auth login
+        echo.
+    ) else (
+        echo [OK] GitHub CLI 認証済み
+    )
+)
+
+REM --- chezmoi 自動更新 (スタートアップ) ---
+set "STARTUP=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
+if not exist "%STARTUP%\chezmoi-update.bat" (
+    echo @echo off > "%STARTUP%\chezmoi-update.bat"
+    echo chezmoi update --no-tty >> "%STARTUP%\chezmoi-update.bat"
+    echo [OK] ログオン時の自動更新を設定しました
+) else (
+    echo [OK] 自動更新は設定済み
+)
+
+echo.
+echo ========================================
+echo  セットアップ完了
+echo ========================================
+echo.
+echo 以下は手動で対応してください:
+echo   1. GitHub認証: gh auth login (未認証の場合)
+echo   2. Supabase: Claude Code で初回使用時にブラウザ認証
+echo   3. 環境変数 (必要な場合のみ):
+echo      - VERCEL_ACCESS_TOKEN
+echo      - EBAY_CLIENT_ID / EBAY_CLIENT_SECRET
+echo.
