@@ -46,6 +46,11 @@ if %errorlevel% equ 0 (
         echo.
     ) else (
         echo [OK] GitHub CLI 認証済み
+        REM --- GITHUB_PERSONAL_ACCESS_TOKEN を自動設定 (Claude Code GitHub MCP用) ---
+        for /f "tokens=*" %%t in ('gh auth token 2^>nul') do (
+            powershell -Command "[Environment]::SetEnvironmentVariable('GITHUB_PERSONAL_ACCESS_TOKEN', '%%t', 'User')"
+            echo [OK] GITHUB_PERSONAL_ACCESS_TOKEN を設定しました
+        )
     )
 )
 
