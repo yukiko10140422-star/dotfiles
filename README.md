@@ -36,6 +36,8 @@ chezmoi は **専用の作業ディレクトリ** にコピーを保持し、`ch
 | chezmoi 上のパス | 実際のパス | 説明 |
 |-----------------|-----------|------|
 | `dot_claude/settings.json` | `~/.claude/settings.json` | Claude Code の設定 |
+| `dot_claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | Claude Code のグローバルルール |
+| `dot_claude/dot_mcp.json.tmpl` | `~/.claude/.mcp.json` | MCP サーバー設定（テンプレート） |
 | `dot_gitconfig` | `~/.gitconfig` | Git のユーザー名・メール等 |
 | `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi 自体の設定（自動 commit & push） |
 
@@ -43,7 +45,7 @@ chezmoi は **専用の作業ディレクトリ** にコピーを保持し、`ch
 
 | スクリプト | 動作タイミング | 内容 |
 |-----------|--------------|------|
-| `.chezmoiscripts/run_sync-claude-skills.ps1` | `chezmoi apply` の度に実行 | [claude-skills](https://github.com/yukiko10140422-star/claude-skills) リポジトリを `~/claude-skills` に clone / pull |
+| `run_onchange_windows-setup.bat.tmpl` | 管理ファイルの内容が変わった時 | 依存ツール（gh, uv, Node.js）のインストール、`GITHUB_PERSONAL_ACCESS_TOKEN` の自動設定、ログオン時の自動更新設定 |
 
 ---
 
@@ -87,7 +89,9 @@ chezmoi init --apply https://github.com/yukiko10140422-star/dotfiles.git
 これだけで完了です。以下がすべて自動で行われます：
 1. 管理中のファイルが正しい場所に配置される
 2. `chezmoi.toml`（自動 commit & push 設定）が配置される
-3. `claude-skills` リポジトリが `~/claude-skills` に clone される
+3. 依存ツール（gh, uv, Node.js）がインストールされる
+4. `GITHUB_PERSONAL_ACCESS_TOKEN` が自動設定される（`gh auth login` 済みの場合）
+5. ログオン時の自動更新（`chezmoi update`）が設定される
 
 ---
 
@@ -188,25 +192,7 @@ chezmoi は作業ディレクトリ内のファイル名を自動変換します
 | 方向 | 仕組み | 設定 |
 |------|--------|------|
 | Push（変更を送る） | `chezmoi add` 時に自動 commit & push | `chezmoi.toml` の `autoCommit` / `autoPush` |
-| Pull（変更を受け取る） | 15分ごとに `chezmoi update` を自動実行 | Windows タスクスケジューラ `ChezmoiAutoUpdate` |
-
-### タスクスケジューラの設定（サブPCのみ）
-
-サブPC側で自動 pull を有効にするには、PowerShell（管理者）で以下を実行：
-
-```powershell
-# chezmoi のパスは環境に合わせて変更
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' `
-    -Argument '-NoProfile -ExecutionPolicy Bypass -Command "chezmoi update --force"'
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) `
-    -RepetitionInterval (New-TimeSpan -Minutes 15)
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
-    -DontStopIfGoingOnBatteries -StartWhenAvailable
-
-Register-ScheduledTask -TaskName 'ChezmoiAutoUpdate' `
-    -Action $action -Trigger $trigger -Settings $settings `
-    -Description 'Pull latest dotfiles every 15 minutes' -Force
-```
+| Pull（変更を受け取る） | Windows ログオン時に `chezmoi update` を自動実行 | スタートアップフォルダの `chezmoi-update.bat`（セットアップスクリプトが自動配置） |
 
 ---
 
@@ -215,10 +201,11 @@ Register-ScheduledTask -TaskName 'ChezmoiAutoUpdate' `
 ```
 dotfiles/
 ├── .chezmoi.toml.tmpl                        ← chezmoi 自体の設定テンプレート
-├── .chezmoiscripts/
-│   └── run_sync-claude-skills.ps1            ← claude-skills を自動 clone/pull
 ├── README.md                                 ← このファイル
+├── run_onchange_windows-setup.bat.tmpl       ← 依存ツール自動インストール・環境変数設定
 ├── dot_claude/
+│   ├── CLAUDE.md                             ← Claude Code グローバルルール
+│   ├── dot_mcp.json.tmpl                     ← MCP サーバー設定テンプレート
 │   └── settings.json                         ← Claude Code の設定
 └── dot_gitconfig                             ← Git の設定
 ```
