@@ -1,27 +1,49 @@
 {
   "mcpServers": {
+    "serena": {
+      "command": "uvx",
+      "args": ["serena-mcp"]
+    },
+    "github": {
+      "command": "gh",
+      "args": ["mcp-server"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
     "vercel": {
-      "type": "http",
-      "url": "https://mcp.vercel.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer {{ env "VERCEL_ACCESS_TOKEN" }}"
+      "command": "npx",
+      "args": ["-y", "@vercel/mcp@latest"],
+      "env": {
+        "VERCEL_ACCESS_TOKEN": "{{ env "VERCEL_ACCESS_TOKEN" }}"
       }
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp"
     },
     "ebay-public-api": {
       "command": "npx",
-      "args": ["-y", "@anthropic/ebay-mcp"],
+      "args": ["-y", "@ebay/npm-public-api-mcp@latest"],
       "env": {
         "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
-        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}"
+        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}",
+        "EBAY_API_ENV": "production"
       }
     },
     "ebay-mcp": {
       "command": "npx",
-      "args": ["-y", "@anthropic/ebay-mcp", "--full"],
+      "args": ["-y", "ebay-mcp"],
       "env": {
         "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
         "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}",
         "EBAY_DEV_ID": "{{ env "EBAY_DEV_ID" }}",
+        "EBAY_ENVIRONMENT": "production",
         "EBAY_REDIRECT_URI": "{{ env "EBAY_REDIRECT_URI" }}"
       }
     }
