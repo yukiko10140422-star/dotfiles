@@ -36,6 +36,14 @@ chezmoi は **専用の作業ディレクトリ** にコピーを保持し、`ch
 | chezmoi 上のパス | 実際のパス | 説明 |
 |-----------------|-----------|------|
 | `dot_claude/settings.json` | `~/.claude/settings.json` | Claude Code の設定 |
+| `dot_gitconfig` | `~/.gitconfig` | Git のユーザー名・メール等 |
+| `.chezmoi.toml.tmpl` | `~/.config/chezmoi/chezmoi.toml` | chezmoi 自体の設定（自動 commit & push） |
+
+### 自動実行スクリプト
+
+| スクリプト | 動作タイミング | 内容 |
+|-----------|--------------|------|
+| `.chezmoiscripts/run_sync-claude-skills.ps1` | `chezmoi apply` の度に実行 | [claude-skills](https://github.com/yukiko10140422-star/claude-skills) リポジトリを `~/claude-skills` に clone / pull |
 
 ---
 
@@ -45,6 +53,13 @@ chezmoi は **専用の作業ディレクトリ** にコピーを保持し、`ch
 
 - Git がインストールされていること
 - GitHub アカウントがあること
+- （Windows の場合）PowerShell の実行ポリシーが `RemoteSigned` 以上であること
+
+```powershell
+# 実行ポリシーの確認と変更（Windows のみ）
+Get-ExecutionPolicy -Scope CurrentUser
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
 
 ### Step 1: chezmoi をインストール
 
@@ -69,7 +84,10 @@ sh -c "$(curl -fsLS get.chezmoi.io)"
 chezmoi init --apply https://github.com/yukiko10140422-star/dotfiles.git
 ```
 
-これだけで完了です。上の表にあるファイルがすべて正しい場所に配置されます。
+これだけで完了です。以下がすべて自動で行われます：
+1. 管理中のファイルが正しい場所に配置される
+2. `chezmoi.toml`（自動 commit & push 設定）が配置される
+3. `claude-skills` リポジトリが `~/claude-skills` に clone される
 
 ---
 
@@ -78,17 +96,11 @@ chezmoi init --apply https://github.com/yukiko10140422-star/dotfiles.git
 ### 設定ファイルを変更したとき
 
 ```bash
-# 1. 変更を chezmoi に取り込む（例: Claude Code の設定を変えた場合）
+# これだけでOK（自動 commit & push される）
 chezmoi add ~/.claude/settings.json
-
-# 2. chezmoi の作業ディレクトリに移動
-chezmoi cd
-
-# 3. Git で commit & push
-git add -A
-git commit -m "Update claude settings"
-git push
 ```
+
+> `autoCommit` と `autoPush` が有効なので、手動の `git commit` / `git push` は不要です。
 
 ### 別の PC で最新の設定を取り込むとき
 
@@ -101,14 +113,9 @@ chezmoi update
 ### 新しいファイルを管理対象に追加するとき
 
 ```bash
-# 例: .gitconfig を追加
-chezmoi add ~/.gitconfig
-
-# chezmoi の作業ディレクトリに移動して push
-chezmoi cd
-git add -A
-git commit -m "Add gitconfig"
-git push
+# 例: VS Code の設定を追加
+chezmoi add ~/.vscode/settings.json
+# → 自動で commit & push される
 ```
 
 ---
@@ -164,13 +171,56 @@ chezmoi は作業ディレクトリ内のファイル名を自動変換します
 
 ---
 
+## 自動同期の仕組み
+
+このリポジトリでは **双方向の自動同期** が設定されています。
+
+```
+┌─────────────┐          ┌──────────┐          ┌─────────────┐
+│  メインPC    │  push →  │  GitHub  │  ← pull  │   サブPC     │
+│             │          │ dotfiles │          │             │
+│ chezmoi add │          │          │          │ chezmoi     │
+│ → 自動push  │          │          │          │ update      │
+│             │          │          │          │ (15分ごと)   │
+└─────────────┘          └──────────┘          └─────────────┘
+```
+
+| 方向 | 仕組み | 設定 |
+|------|--------|------|
+| Push（変更を送る） | `chezmoi add` 時に自動 commit & push | `chezmoi.toml` の `autoCommit` / `autoPush` |
+| Pull（変更を受け取る） | 15分ごとに `chezmoi update` を自動実行 | Windows タスクスケジューラ `ChezmoiAutoUpdate` |
+
+### タスクスケジューラの設定（サブPCのみ）
+
+サブPC側で自動 pull を有効にするには、PowerShell（管理者）で以下を実行：
+
+```powershell
+# chezmoi のパスは環境に合わせて変更
+$action = New-ScheduledTaskAction -Execute 'powershell.exe' `
+    -Argument '-NoProfile -ExecutionPolicy Bypass -Command "chezmoi update --force"'
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) `
+    -RepetitionInterval (New-TimeSpan -Minutes 15)
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
+    -DontStopIfGoingOnBatteries -StartWhenAvailable
+
+Register-ScheduledTask -TaskName 'ChezmoiAutoUpdate' `
+    -Action $action -Trigger $trigger -Settings $settings `
+    -Description 'Pull latest dotfiles every 15 minutes' -Force
+```
+
+---
+
 ## リポジトリの構成
 
 ```
 dotfiles/
-├── README.md                    ← このファイル
-└── dot_claude/
-    └── settings.json            ← Claude Code の設定
+├── .chezmoi.toml.tmpl                        ← chezmoi 自体の設定テンプレート
+├── .chezmoiscripts/
+│   └── run_sync-claude-skills.ps1            ← claude-skills を自動 clone/pull
+├── README.md                                 ← このファイル
+├── dot_claude/
+│   └── settings.json                         ← Claude Code の設定
+└── dot_gitconfig                             ← Git の設定
 ```
 
 ---
