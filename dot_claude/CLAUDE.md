@@ -28,11 +28,11 @@
 | serena | コード解析・ナビゲーション | uvx (uv) |
 | context7 | ライブラリドキュメント検索 | npx (Node.js) |
 | playwright | ブラウザ自動操作・テスト | npx (Node.js) |
+| github | GitHub操作（ビルトインMCP） | gh CLI（`gh auth login` 済みならPATはセットアップスクリプトが自動設定） |
 
 ### 初回認証が必要
 | サーバー | 認証方法 |
 |---------|---------|
-| github | `GITHUB_PERSONAL_ACCESS_TOKEN` 環境変数を設定（GitHub Settings > Developer settings > PAT で作成） |
 | supabase | Claude Code で初回使用時にブラウザ認証 |
 
 ### 要環境変数（初回接続時にオーナーへ値を確認する）
