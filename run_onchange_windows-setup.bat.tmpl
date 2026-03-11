@@ -64,6 +64,17 @@ if not exist "%STARTUP%\chezmoi-update.bat" (
     echo [OK] 自動更新は設定済み
 )
 
+REM --- Claude Config Watcher (スタートアップ) ---
+set "WATCHER_VBS=%STARTUP%\claude-config-watcher.vbs"
+set "WATCHER_PS1=%USERPROFILE%\.claude\mcp-config\scripts\watch-claude-config.ps1"
+if not exist "%WATCHER_VBS%" (
+    echo Set objShell = CreateObject^("WScript.Shell"^) > "%WATCHER_VBS%"
+    echo objShell.Run "powershell -ExecutionPolicy Bypass -WindowStyle Hidden -File " ^& Chr^(34^) ^& "%WATCHER_PS1%" ^& Chr^(34^), 0, False >> "%WATCHER_VBS%"
+    echo [OK] Claude Config Watcher をスタートアップに登録しました
+) else (
+    echo [OK] Claude Config Watcher は設定済み
+)
+
 echo.
 echo ========================================
 echo  セットアップ完了

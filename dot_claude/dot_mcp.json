@@ -20,7 +20,7 @@
       "command": "npx",
       "args": ["-y", "@vercel/mcp@latest"],
       "env": {
-        "VERCEL_ACCESS_TOKEN": "{{ env "VERCEL_ACCESS_TOKEN" }}"
+        "VERCEL_ACCESS_TOKEN": "${VERCEL_ACCESS_TOKEN}"
       }
     },
     "supabase": {
@@ -31,8 +31,8 @@
       "command": "npx",
       "args": ["-y", "@ebay/npm-public-api-mcp@latest"],
       "env": {
-        "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
-        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}",
+        "EBAY_CLIENT_ID": "${EBAY_CLIENT_ID}",
+        "EBAY_CLIENT_SECRET": "${EBAY_CLIENT_SECRET}",
         "EBAY_API_ENV": "production"
       }
     },
@@ -40,11 +40,11 @@
       "command": "npx",
       "args": ["-y", "ebay-mcp"],
       "env": {
-        "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
-        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}",
-        "EBAY_DEV_ID": "{{ env "EBAY_DEV_ID" }}",
+        "EBAY_CLIENT_ID": "${EBAY_CLIENT_ID}",
+        "EBAY_CLIENT_SECRET": "${EBAY_CLIENT_SECRET}",
+        "EBAY_DEV_ID": "${EBAY_DEV_ID}",
         "EBAY_ENVIRONMENT": "production",
-        "EBAY_REDIRECT_URI": "{{ env "EBAY_REDIRECT_URI" }}"
+        "EBAY_REDIRECT_URI": "${EBAY_REDIRECT_URI}"
       }
     }
   }
