@@ -64,6 +64,15 @@ if not exist "%STARTUP%\chezmoi-update.bat" (
     echo [OK] 自動更新は設定済み
 )
 
+REM --- Claude Skills Repository ---
+if not exist "%USERPROFILE%\.claude\plugins\marketplaces\local\.git" (
+    echo [INSTALL] Claude Skills リポジトリをクローン中...
+    git clone https://github.com/yukiko10140422-star/claude-skills.git "%USERPROFILE%\.claude\plugins\marketplaces\local"
+    echo [OK] Claude Skills リポジトリをクローンしました
+) else (
+    echo [OK] Claude Skills リポジトリは既にクローン済み
+)
+
 REM --- Claude Config Watcher (スタートアップ) ---
 set "WATCHER_VBS=%STARTUP%\claude-config-watcher.vbs"
 set "WATCHER_PS1=%USERPROFILE%\.claude\mcp-config\scripts\watch-claude-config.ps1"
