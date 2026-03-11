@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer {{ env "VERCEL_ACCESS_TOKEN" }}"
+      }
+    },
+    "ebay-public-api": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/ebay-mcp"],
+      "env": {
+        "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
+        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}"
+      }
+    },
+    "ebay-mcp": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/ebay-mcp", "--full"],
+      "env": {
+        "EBAY_CLIENT_ID": "{{ env "EBAY_CLIENT_ID" }}",
+        "EBAY_CLIENT_SECRET": "{{ env "EBAY_CLIENT_SECRET" }}",
+        "EBAY_DEV_ID": "{{ env "EBAY_DEV_ID" }}",
+        "EBAY_REDIRECT_URI": "{{ env "EBAY_REDIRECT_URI" }}"
+      }
+    }
+  }
+}
