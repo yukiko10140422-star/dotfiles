@@ -64,6 +64,15 @@ if not exist "%STARTUP%\chezmoi-update.bat" (
     echo [OK] 自動更新は設定済み
 )
 
+REM --- MCP Config Repository ---
+if not exist "%USERPROFILE%\.claude\mcp-config\.git" (
+    echo [INSTALL] mcp-config リポジトリをクローン中...
+    git clone https://github.com/yukiko10140422-star/mcp-config.git "%USERPROFILE%\.claude\mcp-config"
+    echo [OK] mcp-config リポジトリをクローンしました
+) else (
+    echo [OK] mcp-config リポジトリは既にクローン済み
+)
+
 REM --- Claude Skills Repository ---
 if not exist "%USERPROFILE%\.claude\plugins\marketplaces\local\.git" (
     echo [INSTALL] Claude Skills リポジトリをクローン中...
